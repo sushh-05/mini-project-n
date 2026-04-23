@@ -86,10 +86,7 @@
         }
 
         input[type="file"] {
-            display: block;
-            margin: 15px auto;
-            padding: 10px;
-            cursor: pointer;
+            display: none;
         }
 
         .btn {
@@ -119,6 +116,22 @@
 
         .btn-secondary:hover {
             background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
         }
 
         .preview {
@@ -226,6 +239,29 @@
 
         .camera-section {
             margin-top: 15px;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            display: inline-block;
+            max-width: 640px;
+            margin: 10px auto;
+        }
+
+        .video-container video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
 
         video {
@@ -233,6 +269,40 @@
             max-width: 640px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        details summary {
+            transition: all 0.3s;
+        }
+
+        details summary:hover {
+            background: #e9ecef !important;
+        }
+
+        details[open] summary {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         .hidden {
@@ -279,7 +349,9 @@
 <body>
     <div class="container">
         <h1>🎯 Saree Blouse Matcher</h1>
-        <p class="subtitle">Upload a saree, then detect matching blouse in real-time</p>
+        <p class="subtitle">
+            1️⃣ Upload saree → 2️⃣ Start camera → 3️⃣ Point at blouses → 4️⃣ See real-time matches!
+        </p>
 
         <!-- Step 1: Upload Reference Saree -->
         <div class="section">
@@ -300,461 +372,597 @@
             <div id="sareeStatus"></div>
         </div>
 
-        <!-- Step 2: Upload/Capture Blouse Scene -->
+        <!-- Step 2: Detect Matching Blouse -->
         <div class="section">
             <h2>Step 2: Detect Matching Blouse</h2>
 
-            <div class="grid-controls">
-                <div class="grid-control">
-                    <label for="detectionMethod">Detection Method:</label>
-                    <select id="detectionMethod">
-                        <option value="yolo">YOLO (Real Object Detection) 🎯</option>
-                        <option value="grid">Grid-Based (Faster) ⚡</option>
-                    </select>
-                </div>
-                <div class="grid-control" id="gridColsControl">
-                    <label for="gridCols">Grid Columns:</label>
-                    <input type="number" id="gridCols" min="1" max="5" value="3">
-                </div>
-                <div class="grid-control" id="gridRowsControl">
-                    <label for="gridRows">Grid Rows:</label>
-                    <input type="number" id="gridRows" min="1" max="5" value="2">
-                </div>
-                <div class="grid-control" id="yoloConfControl" style="display:none;">
-                    <label for="yoloConf">YOLO Confidence:</label>
-                    <input type="number" id="yoloConf" min="0.1" max="1.0" step="0.05" value="0.25">
-                    image</p>
-                    <p style="color: #6c757d; font-size: 14px;">Upload an image with multiple blouses</p>
-                    <input type="file" id="blouseFileInput" accept="image/*">
+            <p style="text-align: center; color: #495057; margin-bottom: 20px;">
+                Choose how to detect blouses:
+            </p>
+
+            <!-- Option A: Real-time Camera (Prominent) -->
+            <div
+                style="background: #e3f2fd; padding: 20px; border-radius: 10px; border: 2px solid #667eea; margin-bottom: 15px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📹 Real-Time Camera Detection (Recommended)</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                    Point your camera at blouses and see matches in real-time!
+                </p>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-secondary" id="cameraBtn">📷 Start Camera</button>
+                    <button class="btn btn-success hidden" id="liveDetectBtn">🎬 Start Live Detection</button>
                 </div>
 
-                <div class="camera-section">
-                    <button class="btn btn-secondary" id="cameraBtn">📷 Use Camera</button>
-                    <video id="cameraVideo" class="hidden" autoplay></video>
-                    <canvas id="cameraCanvas" class="hidden"></canvas>
-                    <button class="btn btn-primary hidden" id="captureBtn">Capture Frame</button>
+                <div class="video-container hidden" id="videoContainer">
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <canvas id="overlayCanvas"></canvas>
                 </div>
 
-                <div class="preview hidden" id="blousePreview">
-                    <img id="blouseImage" alt="Blouse scene preview">
-                </div>
+                <canvas id="cameraCanvas" class="hidden"></canvas>
 
-                <div style="text-align: center; margin-top: 15px;">
-                    <button class="btn btn-primary" id="detectBtn" disabled>Detect Matching Blouse</button>
-                </div>
-                <div id="blouseStatus"></div>
-
-                <!-- Result -->
-                <div class="preview hidden" id="resultPreview">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">🎉 Detection Result</h3>
-                    <img id="resultImage" alt="Detection result">
-                    <div class="result-info" id="resultInfo"></div>
-
-                    <!-- Feedback buttons -->
-                    <div style="text-align: center; margin-top: 20px;">
-                        <p style="color: #495057; margin-bottom: 10px;"><strong>Was this match accurate?</strong></p>
-                        <button class="btn btn-primary" id="goodMatchBtn" style="background: #28a745;">✓ Good
-                            Match</button>
-                        <button class="btn btn-secondary" id="badMatchBtn" style="background: #dc3545;">✗ Wrong
-                            Match</button>
-                    </div>
-                    <div id="feedbackStatus"></div>
+                <div id="liveStatus" class="hidden"
+                    style="margin-top: 10px; font-weight: bold; color: #667eea; text-align: center;">
+                    <span class="live-indicator"></span>
+                    Live Detection Active - Green box = Best Match!
                 </div>
             </div>
 
-            <!-- Training Statistics Section -->
-            <div class="section">
-                <h2>Training Statistics</h2>
-                <div id="trainingStats" style="background: white; padding: 15px; border-radius: 8px;">
-                    <p style="color: #6c757d;">Loading training data...</p>
+            <!-- Option B: Upload Image (Secondary) -->
+            <details style="margin-top: 15px;">
+                <summary
+                    style="cursor: pointer; padding: 15px; background: #f8f9fa; border-radius: 8px; font-weight: 600; color: #495057;">
+                    📤 Or Upload a Static Image (Optional)
+                </summary>
+                <div style="padding: 20px; background: #fff; border: 1px solid #dee2e6; border-radius: 0 0 8px 8px;">
+                    <div class="upload-area" id="blouseUploadArea" style="padding: 20px;">
+                        <p style="font-size: 36px; margin: 0;">🖼️</p>
+                        <p style="color: #667eea; font-size: 16px; margin: 10px 0;">Upload image with blouses</p>
+                        <input type="file" id="blouseFileInput" accept="image/*">
+                    </div>
+
+                    <div class="preview hidden" id="blousePreview">
+                        <img id="blouseImage" alt="Blouse scene preview">
+                    </div>
+
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn btn-primary" id="detectBtn" disabled>🔍 Detect in This Image</button>
+                    </div>
+                    <div id="blouseStatus"></div>
                 </div>
-                <button class="btn btn-secondary" id="refreshStatsBtn" style="margin-top: 10px;">🔄 Refresh
-                    Stats</button>
+            </details>
+
+            <!-- Result -->
+            <div class="preview hidden" id="resultPreview">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🎉 Detection Result</h3>
+                <img id="resultImage" alt="Detection result">
+                <div class="result-info" id="resultInfo"></div>
+
+                <!-- Feedback buttons -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: #495057; margin-bottom: 10px;"><strong>Was this match accurate?</strong></p>
+                    <button class="btn btn-primary" id="goodMatchBtn" style="background: #28a745;">✓ Good
+                        Match</button>
+                    <button class="btn btn-secondary" id="badMatchBtn" style="background: #dc3545;">✗ Wrong
+                        Match</button>
+                </div>
+                <div id="feedbackStatus"></div>
             </div>
         </div>
 
-        <script>
-            const API_URL = 'http://localhost:8000';
-            let storedSareeId = null;
-            let selectedSareeFile = null;
-            let selectedBlouseFile = null;
-            let cameraStream = null;
-            let lastMatchedBlouseId = null;  // Track last match for feedback
+        <!-- Training Statistics Section -->
+        <div class="section">
+            <h2>Training Statistics</h2>
+            <div id="trainingStats" style="background: white; padding: 15px; border-radius: 8px;">
+                <p style="color: #6c757d;">Loading training data...</p>
+            </div>
+            <button class="btn btn-secondary" id="refreshStatsBtn" style="margin-top: 10px;">🔄 Refresh
+                Stats</button>
+        </div>
+    </div>
 
-            // Saree upload handling
-            const sareeUploadArea = document.getElementById('sareeUploadArea');
-            const sareeFileInput = document.getElementById('sareeFileInput');
-            const sareePreview = document.getElementById('sareePreview');
-            const sareeImage = document.getElementById('sareeImage');
-            const storeSareeBtn = document.getElementById('storeSareeBtn');
-            const sareeStatus = document.getElementById('sareeStatus');
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let storedSareeId = null;
+        let selectedSareeFile = null;
+        let selectedBlouseFile = null;
+        let cameraStream = null;
+        let lastMatchedBlouseId = null;  // Track last match for feedback
 
-            sareeUploadArea.addEventListener('click', () => sareeFileInput.click());
-            sareeFileInput.addEventListener('change', handleSareeFileSelect);
+        // Saree upload handling
+        const sareeUploadArea = document.getElementById('sareeUploadArea');
+        const sareeFileInput = document.getElementById('sareeFileInput');
+        const sareePreview = document.getElementById('sareePreview');
+        const sareeImage = document.getElementById('sareeImage');
+        const storeSareeBtn = document.getElementById('storeSareeBtn');
+        const sareeStatus = document.getElementById('sareeStatus');
 
-            // Drag and drop for saree
-            sareeUploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                sareeUploadArea.classList.add('dragging');
-            });
-            sareeUploadArea.addEventListener('dragleave', () => {
-                sareeUploadArea.classList.remove('dragging');
-            });
-            sareeUploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                sareeUploadArea.classList.remove('dragging');
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    sareeFileInput.files = e.dataTransfer.files;
-                    handleSareeFileSelect();
-                }
-            });
+        sareeUploadArea.addEventListener('click', () => sareeFileInput.click());
+        sareeFileInput.addEventListener('change', handleSareeFileSelect);
 
-            function handleSareeFileSelect() {
-                const file = sareeFileInput.files[0];
-                if (file) {
-                    selectedSareeFile = file;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        sareeImage.src = e.target.result;
-                        sareePreview.classList.remove('hidden');
-                        storeSareeBtn.disabled = false;
-                    };
-                    reader.readAsDataURL(file);
-                }
+        // Drag and drop for saree
+        sareeUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            sareeUploadArea.classList.add('dragging');
+        });
+        sareeUploadArea.addEventListener('dragleave', () => {
+            sareeUploadArea.classList.remove('dragging');
+        });
+        sareeUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            sareeUploadArea.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                sareeFileInput.files = e.dataTransfer.files;
+                handleSareeFileSelect();
             }
+        });
 
-            storeSareeBtn.addEventListener('click', async () => {
-                if (!selectedSareeFile) return;
+        function handleSareeFileSelect() {
+            const file = sareeFileInput.files[0];
+            if (file) {
+                selectedSareeFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sareeImage.src = e.target.result;
+                    sareePreview.classList.remove('hidden');
+                    storeSareeBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-                const formData = new FormData();
-                formData.append('file', selectedSareeFile);
+        storeSareeBtn.addEventListener('click', async () => {
+            if (!selectedSareeFile) return;
 
-                showStatus(sareeStatus, 'Storing saree image...', 'info', true);
-                storeSareeBtn.disabled = true;
+            const formData = new FormData();
+            formData.append('file', selectedSareeFile);
 
-                try {
-                    const response = await fetch(`${API_URL}/store_saree`, {
-                        method: 'POST',
-                        body: formData
-                    });
+            showStatus(sareeStatus, 'Storing saree image...', 'info', true);
+            storeSareeBtn.disabled = true;
 
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                const response = await fetch(`${API_URL}/store_saree`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-                    const data = await response.json();
-                    storedSareeId = data.saree_id;
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                    showStatus(sareeStatus, `✓ Saree stored successfully! ID: ${storedSareeId.slice(0, 8)}...`, 'success');
+                const data = await response.json();
+                storedSareeId = data.saree_id;
 
-                    // Display palette
-                    let infoHTML = '<h3>Detected Colors:</h3><div class="palette">';
-                    data.palette.forEach(color => {
-                        infoHTML += `
+                showStatus(sareeStatus,
+                    `✓ Saree stored successfully! ID: ${storedSareeId.slice(0, 8)}...<br>` +
+                    `🎨 CLIP Color: <strong>${data.clip_detected_color || 'detecting...'}</strong>`,
+                    'success'
+                );
+
+                // Display palette
+                let infoHTML = '<h3>Detected Colors:</h3><div class="palette">';
+                data.palette.forEach(color => {
+                    infoHTML += `
                         <div class="palette-color">
                             <div class="color-swatch" style="background-color: ${color.hex}"></div>
                             <span>${color.name} (${(color.share * 100).toFixed(1)}%)</span>
                         </div>
                     `;
-                    });
-                    infoHTML += '</div>';
-                    document.getElementById('sareeInfo').innerHTML = infoHTML;
+                });
+                infoHTML += '</div>';
+                document.getElementById('sareeInfo').innerHTML = infoHTML;
 
-                } catch (error) {
-                    showStatus(sareeStatus, `Error: ${error.message}`, 'error');
-                    storeSareeBtn.disabled = false;
+                // Enable live detection if camera is active
+                if (cameraStream) {
+                    document.getElementById('liveDetectBtn').classList.remove('hidden');
                 }
-            });
 
-            // Blouse upload handling
-            const blouseUploadArea = document.getElementById('blouseUploadArea');
-            const blouseFileInput = document.getElementById('blouseFileInput');
-            const blousePreview = document.getElementById('blousePreview');
-            const blouseImage = document.getElementById('blouseImage');
-            const detectBtn = document.getElementById('detectBtn');
-            const blouseStatus = document.getElementById('blouseStatus');
-            const resultPreview = document.getElementById('resultPreview');
-            const resultImage = document.getElementById('resultImage');
+            } catch (error) {
+                showStatus(sareeStatus, `Error: ${error.message}`, 'error');
+                storeSareeBtn.disabled = false;
+            }
+        });
 
-            // Detection method toggle
-            const detectionMethod = document.getElementById('detectionMethod');
-            const gridColsControl = document.getElementById('gridColsControl');
-            const gridRowsControl = document.getElementById('gridRowsControl');
-            const yoloConfControl = document.getElementById('yoloConfControl');
+        // Blouse upload handling
+        const blouseUploadArea = document.getElementById('blouseUploadArea');
+        const blouseFileInput = document.getElementById('blouseFileInput');
+        const blousePreview = document.getElementById('blousePreview');
+        const blouseImage = document.getElementById('blouseImage');
+        const detectBtn = document.getElementById('detectBtn');
+        const blouseStatus = document.getElementById('blouseStatus');
+        const resultPreview = document.getElementById('resultPreview');
+        const resultImage = document.getElementById('resultImage');
 
-            detectionMethod.addEventListener('change', () => {
-                if (detectionMethod.value === 'yolo') {
-                    gridColsControl.style.display = 'none';
-                    gridRowsControl.style.display = 'none';
-                    yoloConfControl.style.display = 'block';
-                } else {
-                    gridColsControl.style.display = 'block';
-                    gridRowsControl.style.display = 'block';
-                    yoloConfControl.style.display = 'none';
-                }
-            });
+        // Removed detection method dropdown - always use YOLO for static images
+
+        blouseUploadArea.addEventListener('click', () => blouseFileInput.click());
+
+        // Drag and drop for blouse
+        blouseUploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             blouseUploadArea.classList.add('dragging');
-            });
-            blouseUploadArea.addEventListener('dragleave', () => {
-                blouseUploadArea.classList.remove('dragging');
-            });
-            blouseUploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                blouseUploadArea.classList.remove('dragging');
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    blouseFileInput.files = e.dataTransfer.files;
-                    handleBlouseFileSelect();
-                }
-            });
-
-            function handleBlouseFileSelect() {
-                const file = blouseFileInput.files[0];
-                if (file) {
-                    selectedBlouseFile = file;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        blouseImage.src = e.target.result;
-                        blousePreview.classList.remove('hidden');
-                        detectBtn.disabled = !storedSareeId;
-                    };
-                    reader.readAsDataURL(file);
-                }
+        });
+        blouseUploadArea.addEventListener('dragleave', () => {
+            blouseUploadArea.classList.remove('dragging');
+        });
+        blouseUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            blouseUploadArea.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                blouseFileInput.files = e.dataTransfer.files;
+                handleBlouseFileSelect();
             }
+        });
 
-            // Camera handling
-            const cameraBtn = document.getElementById('cameraBtn');
-            const cameraVideo = document.getElementById('cameraVideo');
-            const cameraCanvas = document.getElementById('cameraCanvas');
-            const captureBtn = document.getElementById('captureBtn');
+        blouseFileInput.addEventListener('change', handleBlouseFileSelect);
 
-            cameraBtn.addEventListener('click', async () => {
-                if (cameraStream) {
-                    // Stop camera
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                    cameraVideo.classList.add('hidden');
-                    captureBtn.classList.add('hidden');
-                    cameraBtn.textContent = '📷 Use Camera';
-                } else {
-                    // Start camera
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: 'environment' }
-                        });
-                        cameraVideo.srcObject = cameraStream;
-                        cameraVideo.classList.remove('hidden');
-                        captureBtn.classList.remove('hidden');
-                        cameraBtn.textContent = '🛑 Stop Camera';
-                    } catch (error) {
-                        alert('Camera access denied: ' + error.message);
-                    }
-                }
-            });
-
-            captureBtn.addEventListener('click', () => {
-                const context = cameraCanvas.getContext('2d');
-                cameraCanvas.width = cameraVideo.videoWidth;
-                cameraCanvas.height = cameraVideo.videoHeight;
-                context.drawImage(cameraVideo, 0, 0);
-
-                cameraCanvas.toBlob((blob) => {
-                    selectedBlouseFile = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
-                    blouseImage.src = URL.createObjectURL(blob);
+        function handleBlouseFileSelect() {
+            const file = blouseFileInput.files[0];
+            if (file) {
+                selectedBlouseFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    blouseImage.src = e.target.result;
                     blousePreview.classList.remove('hidden');
                     detectBtn.disabled = !storedSareeId;
-                }, 'image/jpeg');
-            });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-            // Detection
-            detectBtn.addEventListener('click', async () => {
-                if (!storedSareeId || !selectedBlouseFile) {
-                    alert('Please store a saree first and select a blouse image');
+        // Camera handling
+        const cameraBtn = document.getElementById('cameraBtn');
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraCanvas = document.getElementById('cameraCanvas');
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const videoContainer = document.getElementById('videoContainer');
+        const liveDetectBtn = document.getElementById('liveDetectBtn');
+        const liveStatus = document.getElementById('liveStatus');
+
+        let liveDetectionInterval = null;
+
+        cameraBtn.addEventListener('click', async () => {
+            if (cameraStream) {
+                // Stop camera and live detection
+                if (liveDetectionInterval) {
+                    clearInterval(liveDetectionInterval);
+                    liveDetectionInterval = null;
+                    liveStatus.classList.add('hidden');
+                }
+
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+                videoContainer.classList.add('hidden');
+                liveDetectBtn.classList.add('hidden');
+                cameraBtn.textContent = '📷 Start Camera';
+            } else {
+                // Start camera
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        }
+                    });
+                    cameraVideo.srcObject = cameraStream;
+                    videoContainer.classList.remove('hidden');
+
+                    // Enable live detection button if saree is stored
+                    if (storedSareeId) {
+                        liveDetectBtn.classList.remove('hidden');
+                    }
+
+                    cameraBtn.textContent = '🛑 Stop Camera';
+
+                    // Set up overlay canvas to match video display dimensions
+                    cameraVideo.addEventListener('loadedmetadata', () => {
+                        // Use clientWidth/clientHeight for the actual display size
+                        overlayCanvas.width = cameraVideo.clientWidth;
+                        overlayCanvas.height = cameraVideo.clientHeight;
+                    });
+                } catch (error) {
+                    alert('Camera access denied: ' + error.message);
+                }
+            }
+        });
+
+        // Live detection
+        liveDetectBtn.addEventListener('click', async () => {
+            if (liveDetectionInterval) {
+                // Stop live detection
+                clearInterval(liveDetectionInterval);
+                liveDetectionInterval = null;
+                liveStatus.classList.add('hidden');
+                liveDetectBtn.textContent = '🎬 Start Live Detection';
+                liveDetectBtn.classList.remove('btn-danger');
+                liveDetectBtn.classList.add('btn-success');
+
+                // Clear overlay
+                const ctx = overlayCanvas.getContext('2d');
+                ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+            } else {
+                // Start live detection
+                if (!storedSareeId) {
+                    alert('Please upload and store a saree first!');
                     return;
                 }
 
-                const method = detectionMethod.value;
+                liveStatus.classList.remove('hidden');
+                liveDetectBtn.textContent = '⏸️ Stop Live Detection';
+                liveDetectBtn.classList.remove('btn-success');
+                liveDetectBtn.classList.add('btn-danger');
+
+                // Run detection every 500ms
+                liveDetectionInterval = setInterval(async () => {
+                    await performLiveDetection();
+                }, 500);
+            }
+        });
+
+        async function performLiveDetection() {
+            try {
+                // Capture current frame
+                const ctx = cameraCanvas.getContext('2d');
+                cameraCanvas.width = cameraVideo.videoWidth;
+                cameraCanvas.height = cameraVideo.videoHeight;
+                ctx.drawImage(cameraVideo, 0, 0);
+
+                // Convert to blob
+                const blob = await new Promise(resolve => cameraCanvas.toBlob(resolve, 'image/jpeg', 0.8));
+
+                // Send to API with return_json=true for live detection
                 const formData = new FormData();
-                formData.append('file', selectedBlouseFile);
+                formData.append('file', blob, 'frame.jpg');
                 formData.append('saree_id', storedSareeId);
-                formData.append('draw_box', 'true');
+                formData.append('draw_box', 'false');
+                formData.append('return_json', 'true');  // Get JSON response!
 
-                // Add method-specific parameters
-                if (method === 'grid') {
-                    formData.append('grid_cols', document.getElementById('gridCols').value);
-                    formData.append('grid_rows', document.getElementById('gridRows').value);
-                } else if (method === 'yolo') {
-                    formData.append('confidence', document.getElementById('yoloConf').value);
+                const response = await fetch(`${API_URL}/detect_blouse_yolo`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    console.error('Live detection failed:', response.status);
+                    return;
                 }
 
-                const endpoint = method === 'yolo' ? '/detect_blouse_yolo' : '/detect_blouse';
-                showStatus(blouseStatus, `Detecting with ${method.toUpperCase()}...`, 'info', true);
-                detectBtn.disabled = true;
+                const data = await response.json();
 
-                try {
-                    const response = await fetch(`${API_URL}${endpoint}`, {
-                        method: 'POST',
-                        body: formData
-                    });
+                // Draw bounding boxes on overlay
+                drawBoundingBoxes(data.detections || []);
 
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.detail || `HTTP error! status: ${response.status}`);
-                    }
+            } catch (error) {
+                console.error('Live detection error:', error);
+            }
+        }
 
-                    const blob = await response.blob();
-                    const imageUrl = URL.createObjectURL(blob);
+        function drawBoundingBoxes(detections) {
+            const ctx = overlayCanvas.getContext('2d');
+            ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-                    resultImage.src = imageUrl;
-                    resultPreview.classList.remove('hidden');
+            if (!detections || detections.length === 0) return;
 
-                    // Get result info from headers
-                    const itemId = response.headers.get('X-Best-Item-ID');
-                    const score = response.headers.get('X-Best-Score');
-                    const bbox = response.headers.get('X-Best-Bbox');
-                    const detectionCount = response.headers.get('X-Detection-Count');
-                    const detectionMethod = response.headers.get('X-Detection-Method');
-                    const yoloConf = response.headers.get('X-YOLO-Confidence');
+            // Only show the best match (first detection - already sorted by score)
+            const det = detections[0];
+            if (!det.bbox) return;
 
-                    lastMatchedBlouseId = itemId;  // Store for feedback
+            // Get scaling factors: bbox coords are for cameraCanvas (videoWidth x videoHeight)
+            // but we draw on overlayCanvas (clientWidth x clientHeight)
+            const scaleX = cameraVideo.clientWidth / cameraCanvas.width;
+            const scaleY = cameraVideo.clientHeight / cameraCanvas.height;
 
-                    let resultHTML = '<h3>Match Details:</h3>';
-                    resultHTML += `<p><strong>Detection Method:</strong> ${detectionMethod || method.toUpperCase()}</p>`;
-                    if (detectionCount) {
-                        resultHTML += `<p><strong>Objects Detected:</strong> ${detectionCount}</p>`;
-                    }
-                    if (yoloConf) {
-                        resultHTML += `<p><strong>YOLO Confidence:</strong> ${parseFloat(yoloConf).toFixed(3)}</p>`;
-                    }
-                    resultHTML += `<p><strong>Best Match:</strong> ${itemId}</p>`;
-                    resultHTML += `<p><strong>Match Score:</strong> ${parseFloat(score).toFixed(3)}</p>`;
-                    if (bbox) {
-                        const [x1, y1, x2, y2] = bbox.split(',');
-                        resultHTML += `<p><strong>Location:</strong> [${x1}, ${y1}] to [${x2}, ${y2}]</p>`;
-                    }
-                    document.getElementById('resultInfo').innerHTML = resultHTML;
+            // Bbox is [x1, y1, x2, y2] format
+            const [x1, y1, x2, y2] = det.bbox;
 
-                    showStatus(blouseStatus, `✓ Detection completed with ${method.toUpperCase()}!`, 'success');
-                    detectBtn.disabled = false;
+            // Scale bbox to overlay display size
+            const sx = x1 * scaleX;
+            const sy = y1 * scaleY;
+            const sw = (x2 - x1) * scaleX;  // width = x2 - x1
+            const sh = (y2 - y1) * scaleY;  // height = y2 - y1
 
-                } catch (error) {
-                    showStatus(blouseStatus, `Error: ${error.message}`, 'error');
-                    detectBtn.disabled = false;
+            // Draw green box for best match
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(sx, sy, sw, sh);
+
+            // Draw label background
+            const label = `${det.item_id} (${(det.final_score * 100).toFixed(0)}%)`;
+            ctx.font = 'bold 18px Arial';
+            const textWidth = ctx.measureText(label).width;
+
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(sx, sy - 28, textWidth + 10, 28);
+
+            // Draw label text
+            ctx.fillStyle = '#000';
+            ctx.fillText(label, sx + 5, sy - 8);
+        }
+
+        // Static image detection button (only attach once!)
+        detectBtn.addEventListener('click', async () => {
+            if (!storedSareeId || !selectedBlouseFile) {
+                alert('Please store a saree first and select a blouse image');
+                return;
+            }
+
+            // Prevent multiple clicks
+            if (detectBtn.disabled) return;
+
+            // Always use YOLO for static images
+            const formData = new FormData();
+            formData.append('file', selectedBlouseFile);
+            formData.append('saree_id', storedSareeId);
+            formData.append('draw_box', 'true');
+
+            const endpoint = '/detect_blouse_yolo';
+            showStatus(blouseStatus, `Detecting with YOLO...`, 'info', true);
+            detectBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || `HTTP error! status: ${response.status}`);
                 }
-            });
 
-            function showStatus(element, message, type, loading = false) {
-                element.innerHTML = `
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+
+                resultImage.src = imageUrl;
+                resultPreview.classList.remove('hidden');
+
+                // Get result info from headers
+                const itemId = response.headers.get('X-Best-Item-ID');
+                const score = response.headers.get('X-Best-Score');
+                const bbox = response.headers.get('X-Best-Bbox');
+                const detectionCount = response.headers.get('X-Detection-Count');
+                const detectionMethod = response.headers.get('X-Detection-Method');
+                const yoloConf = response.headers.get('X-YOLO-Confidence');
+
+                lastMatchedBlouseId = itemId;  // Store for feedback
+
+                let resultHTML = '<h3>Match Details:</h3>';
+                resultHTML += `<p><strong>Detection Method:</strong> YOLO</p>`;
+                if (detectionCount) {
+                    resultHTML += `<p><strong>Objects Detected:</strong> ${detectionCount}</p>`;
+                }
+                if (yoloConf) {
+                    resultHTML += `<p><strong>YOLO Confidence:</strong> ${parseFloat(yoloConf).toFixed(3)}</p>`;
+                }
+                resultHTML += `<p><strong>Best Match:</strong> ${itemId}</p>`;
+                resultHTML += `<p><strong>Match Score:</strong> ${parseFloat(score).toFixed(3)}</p>`;
+                if (bbox) {
+                    const [x1, y1, x2, y2] = bbox.split(',');
+                    resultHTML += `<p><strong>Location:</strong> [${x1}, ${y1}] to [${x2}, ${y2}]</p>`;
+                }
+                document.getElementById('resultInfo').innerHTML = resultHTML;
+
+                showStatus(blouseStatus, `✓ Detection completed with YOLO!`, 'success');
+                detectBtn.disabled = false;
+
+            } catch (error) {
+                showStatus(blouseStatus, `Error: ${error.message}`, 'error');
+                detectBtn.disabled = false;
+            }
+        });
+
+        function showStatus(element, message, type, loading = false) {
+            element.innerHTML = `
                 <div class="status ${type}">
                     ${message}
                     ${loading ? '<span class="loading"></span>' : ''}
                 </div>
             `;
+        }
+
+        // Check API health on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    console.log('✓ API is running');
+                    loadTrainingStats();  // Load initial training stats
+                }
+            } catch (error) {
+                alert('⚠️ Cannot connect to API. Make sure the server is running at ' + API_URL);
+            }
+        });
+
+        // Feedback buttons
+        const goodMatchBtn = document.getElementById('goodMatchBtn');
+        const badMatchBtn = document.getElementById('badMatchBtn');
+        const feedbackStatus = document.getElementById('feedbackStatus');
+
+        goodMatchBtn.addEventListener('click', () => provideFeedback(true));
+        badMatchBtn.addEventListener('click', () => provideFeedback(false));
+
+        async function provideFeedback(isGoodMatch) {
+            if (!storedSareeId || !lastMatchedBlouseId) {
+                alert('No match to provide feedback on');
+                return;
             }
 
-            // Check API health on load
-            window.addEventListener('load', async () => {
-                try {
-                    const response = await fetch(`${API_URL}/health`);
-                    if (response.ok) {
-                        console.log('✓ API is running');
-                        loadTrainingStats();  // Load initial training stats
-                    }
-                } catch (error) {
-                    alert('⚠️ Cannot connect to API. Make sure the server is running at ' + API_URL);
-                }
-            });
+            const formData = new FormData();
+            formData.append('saree_id', storedSareeId);
+            formData.append('blouse_id', lastMatchedBlouseId);
+            formData.append('is_good_match', isGoodMatch);
 
-            // Feedback buttons
-            const goodMatchBtn = document.getElementById('goodMatchBtn');
-            const badMatchBtn = document.getElementById('badMatchBtn');
-            const feedbackStatus = document.getElementById('feedbackStatus');
+            goodMatchBtn.disabled = true;
+            badMatchBtn.disabled = true;
 
-            goodMatchBtn.addEventListener('click', () => provideFeedback(true));
-            badMatchBtn.addEventListener('click', () => provideFeedback(false));
+            try {
+                const response = await fetch(`${API_URL}/confirm_match`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            async function provideFeedback(isGoodMatch) {
-                if (!storedSareeId || !lastMatchedBlouseId) {
-                    alert('No match to provide feedback on');
-                    return;
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                const formData = new FormData();
-                formData.append('saree_id', storedSareeId);
-                formData.append('blouse_id', lastMatchedBlouseId);
-                formData.append('is_good_match', isGoodMatch);
+                const data = await response.json();
 
-                goodMatchBtn.disabled = true;
-                badMatchBtn.disabled = true;
+                showStatus(feedbackStatus,
+                    `✓ Thank you! Training updated with ${isGoodMatch ? 'positive' : 'negative'} feedback. Total pairs: ${data.total_training_pairs}`,
+                    'success'
+                );
 
-                try {
-                    const response = await fetch(`${API_URL}/confirm_match`, {
-                        method: 'POST',
-                        body: formData
-                    });
+                // Reload training stats
+                setTimeout(() => loadTrainingStats(), 1000);
 
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                    const data = await response.json();
-
-                    showStatus(feedbackStatus,
-                        `✓ Thank you! Training updated with ${isGoodMatch ? 'positive' : 'negative'} feedback. Total pairs: ${data.total_training_pairs}`,
-                        'success'
-                    );
-
-                    // Reload training stats
-                    setTimeout(() => loadTrainingStats(), 1000);
-
-                } catch (error) {
-                    showStatus(feedbackStatus, `Error: ${error.message}`, 'error');
-                } finally {
-                    goodMatchBtn.disabled = false;
-                    badMatchBtn.disabled = false;
-                }
+            } catch (error) {
+                showStatus(feedbackStatus, `Error: ${error.message}`, 'error');
+            } finally {
+                goodMatchBtn.disabled = false;
+                badMatchBtn.disabled = false;
             }
+        }
 
-            // Training statistics
-            const refreshStatsBtn = document.getElementById('refreshStatsBtn');
-            const trainingStatsDiv = document.getElementById('trainingStats');
+        // Training statistics
+        const refreshStatsBtn = document.getElementById('refreshStatsBtn');
+        const trainingStatsDiv = document.getElementById('trainingStats');
 
-            refreshStatsBtn.addEventListener('click', loadTrainingStats);
+        refreshStatsBtn.addEventListener('click', loadTrainingStats);
 
-            async function loadTrainingStats() {
-                try {
-                    const response = await fetch(`${API_URL}/training_stats`);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        async function loadTrainingStats() {
+            try {
+                const response = await fetch(`${API_URL}/training_stats`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                    const stats = await response.json();
+                const stats = await response.json();
 
-                    let html = '<h3 style="color: #667eea; margin-bottom: 10px;">📊 Training Data</h3>';
-                    html += `<p><strong>Total Training Pairs:</strong> ${stats.total_pairs}</p>`;
-                    html += `<p><strong>Average Score:</strong> ${stats.avg_score}</p>`;
+                let html = '<h3 style="color: #667eea; margin-bottom: 10px;">📊 Training Data</h3>';
+                html += `<p><strong>Total Training Pairs:</strong> ${stats.total_pairs}</p>`;
+                html += `<p><strong>Average Score:</strong> ${stats.avg_score}</p>`;
 
-                    if (stats.most_common_pair) {
-                        html += `<p><strong>Most Common Pair:</strong> ${stats.most_common_pair[0]} (${stats.most_common_pair[1]} examples)</p>`;
-                    }
-
-                    html += '<h4 style="margin-top: 15px;">Model Weights:</h4>';
-                    html += `<p>• Image Similarity: ${(stats.model_weights.image_similarity * 100).toFixed(0)}%</p>`;
-                    html += `<p>• Metadata: ${(stats.model_weights.metadata * 100).toFixed(0)}%</p>`;
-                    html += `<p>• Training Boost: ${(stats.model_weights.training_boost * 100).toFixed(0)}%</p>`;
-
-                    if (Object.keys(stats.color_combinations).length > 0) {
-                        html += '<h4 style="margin-top: 15px;">Learned Color Pairs:</h4>';
-                        html += '<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">';
-                        for (const [pair, count] of Object.entries(stats.color_combinations)) {
-                            html += `<div style="background: #f0f4ff; padding: 8px 12px; border-radius: 5px; font-size: 14px;">${pair} (×${count})</div>`;
-                        }
-                        html += '</div>';
-                    }
-
-                    trainingStatsDiv.innerHTML = html;
-
-                } catch (error) {
-                    trainingStatsDiv.innerHTML = `<p style="color: #dc3545;">Error loading stats: ${error.message}</p>`;
+                if (stats.most_common_pair) {
+                    html += `<p><strong>Most Common Pair:</strong> ${stats.most_common_pair[0]} (${stats.most_common_pair[1]} examples)</p>`;
                 }
+
+                html += '<h4 style="margin-top: 15px;">Model Weights:</h4>';
+                html += `<p>• Image Similarity: ${(stats.model_weights.image_similarity * 100).toFixed(0)}%</p>`;
+                html += `<p>• Metadata: ${(stats.model_weights.metadata * 100).toFixed(0)}%</p>`;
+                html += `<p>• Training Boost: ${(stats.model_weights.training_boost * 100).toFixed(0)}%</p>`;
+
+                if (Object.keys(stats.color_combinations).length > 0) {
+                    html += '<h4 style="margin-top: 15px;">Learned Color Pairs:</h4>';
+                    html += '<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">';
+                    for (const [pair, count] of Object.entries(stats.color_combinations)) {
+                        html += `<div style="background: #f0f4ff; padding: 8px 12px; border-radius: 5px; font-size: 14px;">${pair} (×${count})</div>`;
+                    }
+                    html += '</div>';
+                }
+
+                trainingStatsDiv.innerHTML = html;
+
+            } catch (error) {
+                trainingStatsDiv.innerHTML = `<p style="color: #dc3545;">Error loading stats: ${error.message}</p>`;
             }
-        </script>
+        }
+    </script>
 </body>
 
 </html>

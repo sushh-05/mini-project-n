@@ -803,7 +803,8 @@ async def detect_blouse_yolo(
     file: UploadFile = File(...),
     saree_id: str = Form(...),
     confidence: float = Form(0.05),  # Much lower to detect all objects!
-    draw_box: bool = Form(True)
+    draw_box: bool = Form(True),
+    return_json: bool = Form(False)  # NEW: Return JSON for live detection
 ):
     """
     Detect matching blouse using YOLO object detection + CLIP matching.
@@ -923,6 +924,26 @@ async def detect_blouse_yolo(
         
         # Find best match
         best_detection = max(detections, key=lambda x: x["final_score"])
+        
+        # If return_json is True, return JSON response with all detections
+        if return_json:
+            return JSONResponse(content={
+                "detections": [
+                    {
+                        "item_id": det["matched_item_id"],
+                        "color": det["matched_color"],
+                        "bbox": det["bbox"],  # [x1, y1, x2, y2]
+                        "final_score": det["final_score"],
+                        "yolo_confidence": det["yolo_confidence"]
+                    }
+                    for det in sorted(detections, key=lambda x: x["final_score"], reverse=True)
+                ],
+                "best_match": {
+                    "item_id": best_detection["matched_item_id"],
+                    "score": best_detection["final_score"],
+                    "bbox": best_detection["bbox"]
+                }
+            })
         
         # Draw bounding boxes if requested
         result_image = scene_image.copy()
