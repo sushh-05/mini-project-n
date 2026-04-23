@@ -67,7 +67,8 @@ def main():
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.inference_mode():
-            image_features = model.get_image_features(**inputs)
+            outputs = model.vision_model(**inputs)
+            image_features = outputs.pooler_output  # Get the pooled features tensor
 
         batch_embeddings = image_features.cpu().numpy()
         all_embeddings.append(batch_embeddings)

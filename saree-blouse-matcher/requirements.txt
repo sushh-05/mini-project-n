@@ -6,3 +6,8 @@ torch
 torchvision
 transformers
 tqdm
+fastapi
+uvicorn[standard]
+python-multipart
+ultralytics
+opencv-python

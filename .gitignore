@@ -8,13 +8,16 @@ __pycache__/
 dist/
 build/
 *.egg
-*.pyc
 
-# Virtual Environment  
+# Virtual Environment - CRITICAL!
 venv/
 env/
 ENV/
 .venv
+Scripts/
+Lib/
+Include/
+pyvenv.cfg
 
 # IDE
 .vscode/
@@ -25,6 +28,10 @@ ENV/
 .DS_Store
 
 # Project specific - generated outputs
+saree-blouse-matcher/outputs/
+saree-blouse-matcher/models/
+saree-blouse-matcher/yolo_dataset/
+saree-blouse-matcher/yolo_training/
 outputs/
 models/
 yolo_dataset/
@@ -38,6 +45,7 @@ yolo_training/
 # Generated files
 catalog_with_status.csv
 embeddings.npy
+*.pyc
 training_pairs.json
 
 # Jupyter

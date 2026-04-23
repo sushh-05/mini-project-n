@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Test</title>
+</head>
+
+<body>
+    <h1>Test Upload</h1>
+
+    <h2>Step 1: Upload Saree</h2>
+    <input type="file" id="sareeFile" accept="image/*">
+    <button onclick="uploadSaree()">Upload Saree</button>
+    <div id="sareeResult"></div>
+    <img id="sareePreview" style="max-width: 300px;">
+
+    <hr>
+
+    <h2>Step 2: Upload Blouse Image</h2>
+    <input type="file" id="blouseFile" accept="image/*">
+    <select id="method">
+        <option value="yolo">YOLO</option>
+        <option value="grid">Grid</option>
+    </select>
+    <button onclick="detectBlouse()">Detect Blouse</button>
+    <div id="blouseResult"></div>
+    <img id="blousePreview" style="max-width: 600px;">
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let storedSareeId = null;
+
+        async function uploadSaree() {
+            const fileInput = document.getElementById('sareeFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('sareeResult').innerHTML = 'Uploading...';
+
+            try {
+                const response = await fetch(`${API_URL}/store_saree`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                storedSareeId = data.saree_id;
+
+                document.getElementById('sareeResult').innerHTML =
+                    `✓ Success! Saree ID: ${storedSareeId}<br>Colors: ${JSON.stringify(data.palette)}`;
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('sareePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                document.getElementById('sareeResult').innerHTML = `Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+
+        async function detectBlouse() {
+            if (!storedSareeId) {
+                alert('Please upload a saree first!');
+                return;
+            }
+
+            const fileInput = document.getElementById('blouseFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a blouse image!');
+                return;
+            }
+
+            const method = document.getElementById('method').value;
+            const endpoint = method === 'yolo' ? '/detect_blouse_yolo' : '/detect_blouse';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('saree_id', storedSareeId);
+
+            if (method === 'grid') {
+                formData.append('grid_cols', '2');
+                formData.append('grid_rows', '2');
+            }
+
+            document.getElementById('blouseResult').innerHTML = 'Detecting...';
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const blob = await response.blob();
+                const imgUrl = URL.createObjectURL(blob);
+
+                document.getElementById('blousePreview').src = imgUrl;
+                document.getElementById('blouseResult').innerHTML = '✓ Detection complete! See result below.';
+
+            } catch (error) {
+                document.getElementById('blouseResult').innerHTML = `Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+
+        // Test API on load
+        fetch(`${API_URL}/health`)
+            .then(r => r.json())
+            .then(data => console.log('API Status:', data))
+            .catch(e => console.error('API Error:', e));
+    </script>
+</body>
+
+</html>
