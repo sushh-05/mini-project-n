@@ -1,0 +1,49 @@
+Pipeline command
+Use this to run the pipeline:
+
+bash
+python scripts/pipeline.py --image_path data/query/query_saree.jpg
+If you want metadata too:
+
+bash
+python scripts/pipeline.py --image_path data/query/query_saree.jpg --fabric silk --pattern zari --occasion festive --style traditional --top_k 5 --palette_k 5
+This should generate the embedding and output files your API needs before startup.
+
+
+API command
+Start the FastAPI server with Uvicorn:
+
+bash
+uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+That is the normal FastAPI local run command, and it should expose the app on port 8000 with live reload enabled.
+
+Test the API
+After starting the API, test it with:
+
+bash
+curl -X POST "http://127.0.0.1:8000/recommend" -F "file=@data/query/query_saree.jpg"
+Or with metadata:
+
+bash
+curl -X POST "http://127.0.0.1:8000/recommend" \
+  -F "file=@data/query/query_saree.jpg" \
+  -F "top_k=5" \
+  -F "fabric=silk" \
+  -F "pattern=zari" \
+  -F "occasion=festive" \
+  -F "style=traditional"
+FastAPI supports file plus form fields together in multipart requests, which is why this curl format works.
+
+Exact order
+Run them in this order:
+
+Pipeline
+
+API
+
+Curl test
+
+bash
+python scripts/pipeline.py --image_path data/query/query_saree.jpg
+uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+curl -X POST "http://127.0.0.1:8000/recommend" -F "file=@data/query/query_saree.jpg"

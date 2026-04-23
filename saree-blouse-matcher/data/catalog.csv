@@ -1,0 +1,6 @@
+item_id,item_type,image_path,color,fabric,pattern,occasion,style
+S001,saree,data/images/sarees/s001.jpg,red,silk,zari,festive,traditional
+S002,saree,data/images/sarees/s002.jpg,blue,georgette,printed,party,modern
+B001,blouse,data/images/blouses/b001.jpg,gold,silk,plain,festive,traditional
+B002,blouse,data/images/blouses/b002.jpg,green,silk,embroidered,festive,traditional
+B003,blouse,data/images/blouses/b003.jpg,silver,satin,plain,party,modern
