@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time saree and blouse matching using AI">
+    <meta name="theme-color" content="#667eea">
     <title>Saree Blouse Matcher - Object Detection</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
         * {
             margin: 0;
@@ -461,7 +468,10 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8000';
+        // API URL - automatically detect deployed vs local
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000'  // Local development
+            : window.location.origin;   // Production (same origin)
         let storedSareeId = null;
         let selectedSareeFile = null;
         let selectedBlouseFile = null;
@@ -961,6 +971,17 @@
             } catch (error) {
                 trainingStatsDiv.innerHTML = `<p style="color: #dc3545;">Error loading stats: ${error.message}</p>`;
             }
+        }
+    </script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('✓ PWA Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
         }
     </script>
 </body>
