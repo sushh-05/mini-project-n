@@ -200,19 +200,21 @@ def detect_dominant_color_with_clip(image: Image.Image) -> str:
         "an orange colored fabric",
     ]
     
-    # Get image features
+    # Get image features (use vision_model + projection)
     inputs = processor(images=image, return_tensors="pt")
     inputs = {k: v.to(device) for k, v in inputs.items()}
     
     with torch.inference_mode():
-        image_features = model.get_image_features(**inputs)
+        vision_output = model.vision_model(**inputs)
+        image_features = model.visual_projection(vision_output.pooler_output)
     
-    # Get text features using processor (handles both images and text!)
+    # Get text features (use text_model + projection)
     text_inputs = processor(text=color_descriptions, return_tensors="pt", padding=True)
     text_inputs = {k: v.to(device) for k, v in text_inputs.items()}
     
     with torch.inference_mode():
-        text_features = model.get_text_features(**text_inputs)
+        text_output = model.text_model(**text_inputs)
+        text_features = model.text_projection(text_output.pooler_output)
     
     # Normalize and compute similarity
     image_features = image_features / image_features.norm(dim=-1, keepdim=True)
