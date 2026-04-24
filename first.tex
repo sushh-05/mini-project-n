@@ -1,0 +1,141 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{array}
+\usepackage{multirow}
+
+% Page margins matching standard report requirements
+\geometry{top=1in, bottom=1in, left=1.25in, right=1in}
+
+\begin{document}
+
+% --- 1. TITLE PAGE ---
+\begin{titlepage}
+    \begin{center}
+        \setstretch{1.5}
+        \textbf{SAREE BLOUSE MATCHER: \\ COMPUTER VISION BASED MATCHING SYSTEM} \\
+        \vspace{0.8cm}
+        \textbf{MINI PROJECT REPORT} \\
+        \vspace{1.2cm}
+        SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS \\ FOR THE AWARD OF THE DEGREE OF \\
+        \vspace{1.2cm}
+        \textbf{MASTER OF ENGINEERING} \\
+        IN \\
+        \textbf{COMPUTER SCIENCE AND ENGINEERING} \\
+        \vfill
+        SUBMITTED BY \\
+        \textbf{NITHISH KUMAR R \hspace{1cm} (REG.NO. 2536020005)} \\
+        \vfill
+        \textbf{ANNAMALAI} \includegraphics[height=1.5cm]{logo.png} \textbf{UNIVERSITY} \\
+        \vspace{0.3cm}
+        \textbf{FACULTY OF ENGINEERING \& TECHNOLOGY} \\
+        \textbf{DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING} \\
+        \textbf{ANNAMALAI UNIVERSITY ANNAMALAI NAGAR-608002} \\
+        \vspace{0.5cm}
+        \textbf{MAY – 2026}
+    \end{center}
+\end{titlepage}
+
+% --- 2. BONAFIDE CERTIFICATE ---
+\newpage
+\begin{center}
+    \textbf{ANNAMALAI} \includegraphics[height=1.2cm]{logo.png} \textbf{UNIVERSITY} \\
+    \textbf{DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING} \\
+    \vspace{1.5cm}
+    \textbf{BONAFIDE CERTIFICATE}
+\end{center}
+\vspace{1.5cm}
+\begin{spacing}{1.5}
+This is to certify that this report titled \textbf{SAREE BLOUSE MATCHER:AI-POWERED OBJECT DETECTION SYSTEM} is the bonafide record of the work done by \textbf{NITHISH KUMAR R} (Reg.No:2536020005) in partial fulfilment of the requirement for the Degree of Master of Engineering (Computer Science and Engineering) during the year 2025-2027.
+\end{spacing}
+
+\vspace{2cm}
+\noindent \textbf{PROJECT INCHARGE} \hfill \textbf{Dr. R. BHAVANI} \\
+1. \null \hfill Professor and Head \\
+\null \hfill Dept. of Computer Science and \\
+\null \hfill Engineering \\
+\null \hfill Annamalai University \\
+
+\vspace{1.5cm}
+\noindent \textbf{INTERNAL EXAMINER} \hfill \textbf{EXTERNAL EXAMINER} \\
+
+\vfill
+\noindent PLACE: ANNAMALAI NAGAR \\
+DATE:
+
+% --- 3. ACKNOWLEDGEMENT ---
+\newpage
+\begin{center}
+    \textbf{ACKNOWLEDGEMENT}
+\end{center}
+\vspace{1cm}
+\begin{spacing}{1.5}
+I owe our Special Thanks to \textbf{Dr. R. BHAVANI, Professor and Head of the Department of Computer Science and Engineering}, for her encouraging and valuable counsel throughout this Project. \\
+
+I would like to express my deep sense of gratitude and sincere thanks to \textbf{Dr. N. J. NALINI Professor, Department of Computer Science and Engineering, Project coordinator}, for her canalized guidance, dedication, constant inspiration, and encouragement. \\
+
+Last, but not least, I would like to thank my family and teammates for their support and encouragement for the successful completion of the thesis work.
+\end{spacing}
+
+\vspace{2cm}
+\begin{center}
+    \textbf{NITHISH KUMAR R \quad (Reg. No: 2536020005)}
+\end{center}
+% --- 4. TABLE OF CONTENTS ---
+\newpage
+\begin{center}
+    \textbf{TABLE OF CONTENTS}
+\end{center}
+\vspace{0.5cm}
+
+\renewcommand{\arraystretch}{1.5} 
+
+\noindent
+\begin{tabular}{|>{\centering\arraybackslash}p{2.5cm}|>{\centering\arraybackslash}p{8.5cm}|>{\centering\arraybackslash}p{2.5cm}|}
+\hline
+\textbf{CHAPTER NO.} & \textbf{TITLE} & \textbf{PAGE NO.} \\ \hline
+& \textbf{ABSTRACT} & VI \\ \hline
+\textbf{1} & \textbf{INTRODUCTION} & 1 \\ \hline
+& 1.1 Overview & 1 \\ \hline
+& 1.2 Project Objectives & 2 \\ \hline
+& 1.3 Problem Statement & 3 \\ \hline
+& 1.4 Problems with Traditional Methods & 4 \\ \hline
+& 1.5 Background and Motivation & 6 \\ \hline
+& 1.6 Deep Learning and Computer Vision Approach & 8 \\ \hline
+& 1.7 System Workflow & 10 \\ \hline
+\textbf{2} & \textbf{SURVEY OF TECHNOLOGY} & 12 \\ \hline
+& 2.1 Literature Survey & 12 \\ \hline
+& 2.2 Technology Stack & 14 \\ \hline
+\textbf{3} & \textbf{SYSTEM ANALYSIS AND REQUIREMENTS} & 18 \\ \hline
+& 3.1 Problem Analysis & 18 \\ \hline
+& 3.2 Proposed System & 20 \\ \hline
+& 3.3 Software and Hardware Requirements & 24 \\ \hline
+\textbf{4} & \textbf{SYSTEM DESIGN AND IMPLEMENTATION} & 26 \\ \hline
+& 4.1 System Architecture & 26 \\ \hline
+& 4.2 Implementation Modules & 28 \\ \hline
+& 4.3 API Endpoints & 32 \\ \hline
+\textbf{5} & \textbf{RESULTS AND DISCUSSION} & 35 \\ \hline
+\textbf{6} & \textbf{CONCLUSIONS} & 40 \\ \hline
+\textbf{7} & \textbf{REFERENCES} & 42 \\ \hline
+\end{tabular}
+% --- 5. ABSTRACT ---
+\newpage
+\begin{center}
+    \textbf{ABSTRACT}
+\end{center}
+\vspace{0.5cm}
+\begin{spacing}{1.2}
+Fashion coordination, particularly in traditional Indian attire, poses significant challenges for individuals seeking to match blouses with sarees. This project presents an AI-powered object detection system called ”Saree Blouse Matcher” that automates the process of identifying and recommending matching blouses for sarees using computer vision and deep learning technologies. \\
+
+The system employs OpenAI’s CLIP (Contrastive Language-Image Pre-training) model for visual feature extraction, generating 512-dimensional embeddings that capture both low-level visual attributes and high-level semantic concepts. A hybrid matching algorithm combines visual similarity (40\%), metadata-based rules (40\%), and learned patterns from user feedback (20\%) to achieve accurate recommendations. Color analysis is performed using K-means clustering with HSV-based background filtering to extract dominant color palettes from garment images. \\
+
+The system architecture consists of a FastAPI backend server with RESTful endpoints, a responsive web-based frontend with HTML5/CSS3/JavaScript, and a continuous learning module (MatchTrainer) that stores user feedback to improve accuracy over time. The grid-based detection system enables identification of matching blouses in composite images containing multiple items, while real-time webcam support provides instant feedback for live detection scenarios. \\
+
+Performance evaluation demonstrates that the system achieves 80.75\% accuracy initially, improving to 91.5\% after 20-30 user feedback iterations. The CLIP-based color detection method outperforms traditional RGB K-means clustering with 92\% accuracy compared to 68\%. Average processing time is 1.5 seconds per image on CPU, reducing to under 0.5 seconds with GPU acceleration. \\
+
+\noindent \textbf{Keywords:} Computer Vision, Deep Learning, CLIP Model, Fashion Technology, Object Detection, Color Analysis, Hybrid Matching Algorithm, Traditional Attire, Real-time Detection, Continuous Learning.
+\end{spacing}
+
+\end{document}
