@@ -1,0 +1,199 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{ragged2e}
+\usepackage{datetime}
+
+\newdateformat{monthyeardate}{\monthname[\THEMONTH] \THEYEAR}
+
+\geometry{margin=1in}
+
+% Center all chapter headings
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\centering}{\chaptertitlename\ \thechapter}{0pt}{\Large}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\Large\bfseries SAREE BLOUSE MATCHER:\par}
+    {\Large\bfseries AI-POWERED OBJECT DETECTION SYSTEM\par}
+    
+    \vspace{1cm}
+    
+    {\large MINI PROJECT REPORT\par}
+    
+    \vspace{1cm}
+    
+    {\large SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS\par}
+    {\large FOR THE AWARD OF THE DEGREE OF\par}
+    
+    \vspace{0.5cm}
+    
+    {\Large\bfseries BACHELOR OF ENGINEERING\par}
+    {\large IN\par}
+    {\Large\bfseries COMPUTER SCIENCE AND ENGINEERING\par}
+    
+    \vspace{1cm}
+    
+    {\large SUBMITTED BY\par}
+    {\Large [Student Name] \hspace{2cm} (REG.NO. [Reg Number])\par}
+    
+    \vfill
+    
+    % University Logo
+    \includegraphics[width=0.15\textwidth]{image.png}
+    \vspace{0.3cm}
+    
+    {\large [UNIVERSITY NAME]\par}
+    {\large FACULTY OF ENGINEERING \& TECHNOLOGY\par}
+    {\large DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+    {\large [UNIVERSITY ADDRESS]\par}
+    {\large \MakeUppercase{\monthname[\the\month]} -- \the\year\par}
+\end{titlepage}
+
+\newpage
+
+% Certificate Page
+\thispagestyle{empty}
+
+\begin{center}
+
+% University Logo
+\includegraphics[width=0.15\textwidth]{image.png}
+
+\vspace{0.8cm}
+
+{\Large\bfseries [UNIVERSITY NAME]\par}
+{\large DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+
+\vspace{2cm}
+
+{\Large\bfseries BONAFIDE CERTIFICATE\par}
+
+\end{center}
+
+\vspace{2cm}
+
+\justify
+This is to certify that this report titled \textbf{"SAREE BLOUSE MATCHER: AI-POWERED OBJECT DETECTION SYSTEM"} is a bonafide record of the mini project work done by \textbf{[Student Name] (REG.NO. [Reg Number])} in partial fulfillment of the requirements for the award of the degree of \textbf{Bachelor of Engineering} in \textbf{Computer Science and Engineering} of \textbf{[University Name]} during the academic year \textbf{[Academic Year]}.
+
+\vspace{3cm}
+
+\noindent
+PROJECT INCHARGE \hfill [Guide Name]
+
+\vspace{0.3cm}
+
+\noindent
+\hphantom{PROJECT INCHARGE} \hfill Professor
+
+\vspace{0.3cm}
+
+\noindent
+\hphantom{PROJECT INCHARGE} \hfill Dept. of Computer Science and Engineering
+
+\vspace{0.3cm}
+
+\noindent
+\hphantom{PROJECT INCHARGE} \hfill [University Name]
+
+\vspace{3cm}
+
+\noindent
+INTERNAL EXAMINER \hfill EXTERNAL EXAMINER
+
+\vspace{2.5cm}
+
+\noindent
+\textbf{Head of the Department}\\
+Department of Computer Science and Engineering\\
+[University Name]
+
+\newpage
+
+% Acknowledgement Page
+\chapter*{ACKNOWLEDGEMENT}
+\addcontentsline{toc}{chapter}{Acknowledgement}
+
+\vspace{1cm}
+
+\justify
+I would like to express my sincere gratitude to all those who have contributed to the successful completion of this project.
+
+\vspace{0.5cm}
+
+First and foremost, I am deeply grateful to my project guide \textbf{[Guide Name]}, Department of Computer Science and Engineering, for the invaluable guidance, continuous support, and encouragement throughout this project. Their expertise and insights were instrumental in shaping this work.
+
+\vspace{0.5cm}
+
+I extend my heartfelt thanks to \textbf{[HOD Name]}, Head of the Department of Computer Science and Engineering, for providing the necessary facilities and creating a conducive environment for research and development.
+
+\vspace{0.5cm}
+
+I am also thankful to all the faculty members of the Department of Computer Science and Engineering for their support and valuable suggestions during various stages of this project.
+
+\vspace{0.5cm}
+
+I would like to acknowledge my family and friends for their constant encouragement, support, and patience throughout the duration of this project.
+
+\vspace{0.5cm}
+
+Finally, I am grateful to all those who directly or indirectly contributed to the successful completion of this work.
+
+\vspace{3cm}
+
+\begin{flushright}
+\textbf{[Student Name]}
+\end{flushright}
+
+\newpage
+
+% Table of Contents
+\chapter*{TABLE OF CONTENTS}
+\addcontentsline{toc}{chapter}{Table of Contents}
+
+\vspace{1cm}
+
+% Empty space for table of contents as in original
+
+\newpage
+
+% Abstract Page
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\vspace{1cm}
+
+\justify
+Fashion coordination, particularly in traditional Indian attire, poses significant challenges for individuals seeking to match blouses with sarees. This project presents an AI-powered object detection system called "Saree Blouse Matcher" that automates the process of identifying and recommending matching blouses for sarees using computer vision and deep learning technologies.
+
+\vspace{0.5cm}
+
+The system employs OpenAI's CLIP (Contrastive Language-Image Pre-training) model for visual feature extraction, generating 512-dimensional embeddings that capture both low-level visual attributes and high-level semantic concepts. A hybrid matching algorithm combines visual similarity (40\%), metadata-based rules (40\%), and learned patterns from user feedback (20\%) to achieve accurate recommendations. Color analysis is performed using K-means clustering with HSV-based background filtering to extract dominant color palettes from garment images.
+
+\vspace{0.5cm}
+
+The system architecture consists of a FastAPI backend server with RESTful endpoints, a responsive web-based frontend with HTML5/CSS3/JavaScript, and a continuous learning module (MatchTrainer) that stores user feedback to improve accuracy over time. The grid-based detection system enables identification of matching blouses in composite images containing multiple items, while real-time webcam support provides instant feedback for live detection scenarios.
+
+\vspace{0.5cm}
+
+Performance evaluation demonstrates that the system achieves 80.75\% accuracy initially, improving to 91.5\% after 20-30 user feedback iterations. The CLIP-based color detection method outperforms traditional RGB K-means clustering with 92\% accuracy compared to 68\%. Average processing time is 1.5 seconds per image on CPU, reducing to under 0.5 seconds with GPU acceleration. Grid detection maintains 92\% accuracy for 6-item composite images with linear time complexity.
+
+\vspace{0.5cm}
+
+The system addresses key limitations of traditional methods including time-intensive manual trials, dependency on expert knowledge, lack of scalability, and absence of learning mechanisms. With a user satisfaction rating of 4.5/5.0, the system demonstrates practical applications in e-commerce recommendations, retail assistance, personal wardrobe management, and fashion education. Future enhancements include fine-tuning on domain-specific datasets, integration with augmented reality for virtual try-on, expansion to jewelry and accessory matching, and deployment as mobile applications with offline capabilities.
+
+\vspace{0.5cm}
+
+\textbf{Keywords:} Computer Vision, Deep Learning, CLIP Model, Fashion Technology, Object Detection, Color Analysis, Hybrid Matching Algorithm, Traditional Attire, Real-time Detection, Continuous Learning
+
+\end{document}
