@@ -1,0 +1,9 @@
+item_id,item_type,image_path,color,fabric,pattern,occasion,style,embedding_index,embedding_model
+S001,saree,data/saree-black.jpeg,black,silk,plain,party,modern,0,openai/clip-vit-base-patch32
+S002,saree,data/saree-green.jpeg,green,silk,printed,festive,traditional,1,openai/clip-vit-base-patch32
+S003,saree,data/saree-purple.jpeg,purple,silk,zari,festive,traditional,2,openai/clip-vit-base-patch32
+S004,saree,data/saree-silver.jpeg,silver,georgette,plain,party,modern,3,openai/clip-vit-base-patch32
+B001,blouse,data/blouse-gold.jpeg,gold,silk,plain,festive,traditional,4,openai/clip-vit-base-patch32
+B002,blouse,data/blouse-green.jpeg,green,silk,embroidered,festive,traditional,5,openai/clip-vit-base-patch32
+B003,blouse,data/blouse-purple.jpeg,purple,satin,plain,festive,traditional,6,openai/clip-vit-base-patch32
+B004,blouse,data/blouse-silver.jpeg,silver,satin,plain,party,modern,7,openai/clip-vit-base-patch32
