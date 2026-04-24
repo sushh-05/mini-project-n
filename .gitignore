@@ -27,25 +27,25 @@ pyvenv.cfg
 *.swn
 .DS_Store
 
-# Project specific - generated outputs
-saree-blouse-matcher/outputs/
+# Project specific - generated outputs (BUT keep essential files!)
+# Keep outputs/ folder but ignore some contents
+saree-blouse-matcher/outputs/*.jpg
+saree-blouse-matcher/outputs/*.png
+saree-blouse-matcher/outputs/temp_*
+saree-blouse-matcher/outputs/test_*
+
+# Ignore large model files (YOLO auto-downloads)
 saree-blouse-matcher/models/
-saree-blouse-matcher/yolo_dataset/
-saree-blouse-matcher/yolo_training/
-outputs/
-models/
-yolo_dataset/
-yolo_training/
-*.npy
-*.pkl
+yolov8*.pt
 *.pth
 *.onnx
-*.pt
 
-# Generated files
-catalog_with_status.csv
-embeddings.npy
-*.pyc
+# Ignore training-related files
+saree-blouse-matcher/yolo_dataset/
+saree-blouse-matcher/yolo_training/
+*.pkl
+
+# Generated training data (can be regenerated)
 training_pairs.json
 
 # Jupyter
