@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: saree-blouse-matcher
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r saree-blouse-matcher/requirements.txt
+    startCommand: cd saree-blouse-matcher && uvicorn api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

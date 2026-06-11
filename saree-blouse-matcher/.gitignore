@@ -24,20 +24,25 @@ ENV/
 *.swn
 .DS_Store
 
-# Project specific - generated outputs
-outputs/
+# Project specific - generated outputs (BUT keep essential files!)
+# Keep outputs/ folder but ignore some contents
+outputs/*.jpg
+outputs/*.png
+outputs/temp_*
+outputs/test_*
+
+# Ignore large model files (YOLO auto-downloads)
 models/
-yolo_dataset/
-yolo_training/
-*.npy
-*.pkl
+yolov8*.pt
 *.pth
 *.onnx
-*.pt
 
-# Generated files
-catalog_with_status.csv
-embeddings.npy
+# Ignore training-related files
+yolo_dataset/
+yolo_training/
+*.pkl
+
+# Generated training data (can be regenerated)
 training_pairs.json
 
 # Jupyter
